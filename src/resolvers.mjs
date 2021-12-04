@@ -1,8 +1,13 @@
 import { Book } from "./Book.model.mjs"
 import { connected } from './mongodb.mjs'
+import { users } from './users.mjs'
+import jwt from 'jsonwebtoken'
 
 export const resolvers = {
     Query: {
+        viewer: (parent, args, { user }) => {
+            return users.find(({ id }) => id === user.sub)
+        },
         books: async () => {
             connected();
             const books = await Book.find({})
@@ -21,6 +26,9 @@ export const resolvers = {
             console.log(book$);
             return book$;
 
+        },
+        user: async (parent, { id }) => {
+            return users.find(user => user.id === id)
         }
     },
     Mutation: {
@@ -47,6 +55,14 @@ export const resolvers = {
             const book$ = await Book.findByIdAndDelete(find)
             console.log(book$);
             return book$;
+        },
+        login: async (parent, { email, password }) => {
+            const { id, permissions, roles } = users.find(user => user.email === email && user.password === password)
+            return jwt.sign(
+                { 'https://thinnydev.com': { roles, permissions } },
+                "SECRET",
+                { algorithm: "HS256", subject: id, expiresIn: "1d" }
+            )
         }
     }
 }

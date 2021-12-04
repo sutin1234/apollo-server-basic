@@ -11,16 +11,24 @@ export const typeDefs = gql`
         books: [Book]
     }
 
+    type User {
+        id: ID!
+        name: String
+    }
+
     type Query {
         books: [Book]!
         searchBookById(_id: ID!): Book!
         searchBookByCriteria(book: BookInput): Book!
+        user(id: ID!): User!
+        viewer: User!
     }
 
     type  Mutation {
         addBook(book: BookInput!): Book!
         deleteBook(_id: ID!): Book!
         updateBook(_id: ID!, book: BookInput!): Book!
+        login(email: String!, password: String!): String!
     }
 
     input BookInput {
