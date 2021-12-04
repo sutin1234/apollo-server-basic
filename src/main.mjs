@@ -2,6 +2,7 @@ import { ApolloServer } from 'apollo-server-express'
 import { ApolloServerPluginLandingPageGraphQLPlayground, ApolloServerPluginDrainHttpServer } from 'apollo-server-core'
 import express from 'express';
 import http from 'http';
+import { connected } from './mongodb.mjs'
 
 import { typeDefs } from './typesDefs.mjs'
 import { resolvers } from './resolvers.mjs'
@@ -23,7 +24,10 @@ async function startApolloServer(typeDefs, resolvers) {
         app,
         path: '/graphql'
     });
-    app.listen(4000, () => console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`))
+    app.listen(4000, async () => {
+        connected();
+        console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+    })
 
 }
 

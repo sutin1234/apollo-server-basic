@@ -1,37 +1,52 @@
-const books = [
-    { title: 'GraphQL', author: 'Sutin' },
-    { title: 'Sveltekit', author: 'Tan' },
-    { title: 'Vue3', author: 'Bird' },
-    { title: 'Angular', author: 'James' },
-]
-
-const categories = [
-    {
-        name: 'GraphQL',
-        books: books
-    }
-]
+import { Book } from "./Book.model.mjs"
+import { connected } from './mongodb.mjs'
 
 export const resolvers = {
     Query: {
-        books: () => books,
-        book: (parent, args, context) => {
-            const { title } = args
-            const foundBook = books.find(book => book.title == title)
-            return foundBook || null
+        books: async () => {
+            connected();
+            const books = await Book.find({})
+            console.log(books);
+            return books || [];
         },
-        bookCriteria: (parent, args, context) => {
-            const { param: { title, author } } = args
-            const foundBook = books.find(book => book.title == title || book.author == author)
-            return foundBook || null
+        searchBookById: async (parent, args, context) => {
+            const { _id } = args
+            const book$ = await Book.findById(_id).exec()
+            console.log(book$);
+            return book$;
         },
-        category: () => categories
+        searchBookByCriteria: async (parent, args, context) => {
+            const { book } = args
+            const book$ = await Book.findOne(book).exec()
+            console.log(book$);
+            return book$;
+
+        }
     },
     Mutation: {
-        addBook: (parent, args, context) => {
+        addBook: async (parent, args, context) => {
             const { book } = args
-            books.push(book)
-            return books[books.length - 1]
+            connected();
+            const book$ = new Book(book);
+            await book$.save();
+            return book$;
+        },
+        updateBook: async (parent, args, context) => {
+            const { _id, book } = args
+            connected();
+            const find = _id
+
+            const book$ = await Book.findByIdAndUpdate(find, book)
+            console.log(book$);
+            return book$;
+        },
+        deleteBook: async (parent, args, context) => {
+            const { _id } = args
+            connected();
+            const find = _id
+            const book$ = await Book.findByIdAndDelete(find)
+            console.log(book$);
+            return book$;
         }
     }
 }
