@@ -8,7 +8,7 @@ const books = [
 const categories = [
     {
         name: 'GraphQL',
-        books: _books
+        books: books
     }
 ]
 
@@ -31,7 +31,7 @@ export const resolvers = {
         addBook: (parent, args, context) => {
             const { book } = args
             books.push(book)
-            return books[_books.length - 1]
+            return books[books.length - 1]
         }
     }
 }
