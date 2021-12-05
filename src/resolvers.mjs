@@ -2,10 +2,16 @@ import { Book } from "./Book.model.mjs"
 import { connected } from './mongodb.mjs'
 import { users } from './users.mjs'
 import jwt from 'jsonwebtoken'
+import { UserInputError } from 'apollo-server-express'
 
 export const resolvers = {
     Query: {
         viewer: (parent, args, { user }) => {
+            if (!user) {
+                throw new UserInputError('Invalid Headers', {
+                    argumentName: 'Authorization: Bearer ${token}'
+                });
+            }
             return users.find(({ id }) => id === user.sub)
         },
         books: async () => {
